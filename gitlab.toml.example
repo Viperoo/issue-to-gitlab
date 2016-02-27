@@ -1,0 +1,3 @@
+Host = "https://gitlab.instance.com"
+Token = "YOURTOKEN"
+DefaultAssigneeId = 0

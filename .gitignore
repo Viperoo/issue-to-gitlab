@@ -22,3 +22,7 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+issue-to-gitlab
+gitlab.toml
+issue-to-gitlab.log

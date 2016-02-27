@@ -26,3 +26,6 @@ _testmain.go
 issue-to-gitlab
 gitlab.toml
 issue-to-gitlab.log
+
+.directory
+*.kate-swp

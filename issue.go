@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
 )
@@ -52,7 +53,7 @@ func addIssue(project string) {
 
 	fmt.Print("Enter the description of an issue: ")
 
-	issue.Description, _ = reader.ReadString('\n')
+	issue.Description = readWithVim()
 
 	fmt.Printf("Enter the ID of a user to assign issue: (default %v) ", Config.DefaultAssigneeId)
 
@@ -109,4 +110,42 @@ func storeIssue(issue Issue, project string) {
 	_ = json.Unmarshal(body, &response)
 
 	logger.Infof("Added issue with idd: %d\n", response.Iid)
+}
+
+func readWithVim() string {
+	vi := "vim"
+	tmpDir := os.TempDir()
+	tmpFile, tmpFileErr := ioutil.TempFile(tmpDir, "tempFilePrefix")
+	if tmpFileErr != nil {
+
+		logger.Criticalf("Error %s while creating tempFile", tmpFileErr)
+	}
+	path, err := exec.LookPath(vi)
+	if err != nil {
+
+		logger.Criticalf("Error %s while looking up for %s!!", path, vi)
+	}
+
+	logger.Infof("%s is available at %s, Calling it with file %s \n", vi, path, tmpFile.Name())
+
+	cmd := exec.Command(path, tmpFile.Name())
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err = cmd.Start()
+	if err != nil {
+		logger.Criticalf("Start failed: %s", err)
+	}
+
+	err = cmd.Wait()
+
+	if err != nil {
+		logger.Criticalf("Command finished with error: %v", err)
+	}
+
+	dat, _ := ioutil.ReadFile(tmpFile.Name())
+
+	os.Remove(tmpFile.Name())
+
+	return string(dat)
 }
